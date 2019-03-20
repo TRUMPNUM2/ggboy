@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="actionLogService" class="com.peiyu.mem.service.impl.ActionLogServiceImpl"/>
+    <bean id="abnormalLogService" class="com.peiyu.mem.service.impl.AbnormalLogServiceImpl"/>
+    <aop:config>
+        <aop:aspect ref="actionLogService">
+            <aop:pointcut id="insertActionPointCut" expression="execution(* com.peiyu.mem.service.*.insert*(..)) or
+             execution(* com.peiyu.mem.manager.*.insert*(..)) orexecution(* com.peiyu.mem.dao.*.insert*(..))"/>
+            <aop:around method="insertActionLog" pointcut-ref="insertActionPointCut"/>
+        </aop:aspect>
+        <aop:aspect ref="actionLogService">
+            <aop:pointcut id="deleteActionPointCut" expression="execution(* com.peiyu.mem.service.*.delete*(..)) or
+            execution(* com.peiyu.mem.manager.*.delete*(..))or execution(* com.peiyu.mem.dao.*.delete*(..))"/>
+            <aop:around method="deleteActionLog" pointcut-ref="deleteActionPointCut"/>
+        </aop:aspect>
+        <aop:aspect ref="actionLogService">
+            <aop:pointcut id="updateActionPointCut" expression="execution(* com.peiyu.mem.service.*.update*(..)) or
+            execution(* com.peiyu.mem.dao.*.update*(..)) or execution(* com.peiyu.mem.manager.*.update*(..))"/>
+            <aop:around method="updateActionLog" pointcut-ref="updateActionPointCut"/>
+        </aop:aspect>
+        <aop:aspect ref="actionLogService">
+            <aop:pointcut id="getActionPointCut" expression="execution(* com.peiyu.mem.service.*.get*(..)) or
+             execution(* com.peiyu.mem.service.CouponService.consumeSendCoupon(..)) or
+             execution(* com.peiyu.mem.manager.*.get*(..)) or execution(* com.peiyu.mem.dao.*.get*(..))"/>
+            <aop:around method="getActionLog" pointcut-ref="getActionPointCut"/>
+        </aop:aspect>
+        <aop:aspect ref="abnormalLogService">
+            <aop:pointcut id="abnormalLog" expression="execution(* com.peiyu.mem.service.*.*(..)) or
+            execution(* com.peiyu.mem.dao.*.*(..))"/>
+            <aop:after-throwing method="saveAbnormalLog" throwing="e" pointcut-ref="abnormalLog"/>
+        </aop:aspect>
+    </aop:config>
+</beans>

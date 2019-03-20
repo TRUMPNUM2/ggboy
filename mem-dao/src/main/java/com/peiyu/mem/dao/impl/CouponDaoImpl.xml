@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.peiyu.mem.dao.CouponDao">
+    <insert id="insert" parameterType="com.peiyu.mem.domian.entity.Coupon">
+insert into coupon (id, vendorId, actNo,actName, subgroupCode, cpCode,
+      cpValue, startDate, endDate, state,memNo, memCat, useValue,  memo, createDate,
+      modifyDate, creator,df)
+    values (#{id,jdbcType=BIGINT}, #{vendorId,jdbcType=BIGINT}, #{actNo,jdbcType=VARCHAR},
+      #{actName,jdbcType=VARCHAR}, #{subgroupCode,jdbcType=VARCHAR}, #{cpCode,jdbcType=VARCHAR},
+      #{cpValue,jdbcType=DOUBLE},  #{startDate,jdbcType=TIMESTAMP},#{endDate,jdbcType=TIMESTAMP}, #{state,jdbcType=INTEGER},
+      #{memNo,jdbcType=VARCHAR}, #{memCat,jdbcType=VARCHAR},#{useValue,jdbcType=DOUBLE},#{memo,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{modifyDate,jdbcType=TIMESTAMP}, #{creator,jdbcType=VARCHAR},#{df,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertBatchCoupons">
+        insert into coupon (id, vendorId, actNo,actName, subgroupCode, cpCode,
+      cpValue, startDate, endDate, state,memNo, memCat, useValue,  memo, createDate,
+      modifyDate, creator,df)VALUES
+        <foreach collection="coupons" index="index" item="item" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.vendorId,jdbcType=BIGINT}, #{item.actNo,jdbcType=VARCHAR},
+            #{item.actName,jdbcType=VARCHAR}, #{item.subgroupCode,jdbcType=VARCHAR}, #{item.cpCode,jdbcType=VARCHAR},
+            #{item.cpValue,jdbcType=DOUBLE},  #{item.startDate,jdbcType=TIMESTAMP},#{item.endDate,jdbcType=TIMESTAMP}, #{item.state,jdbcType=INTEGER},
+            #{item.memNo,jdbcType=VARCHAR}, #{item.memCat,jdbcType=VARCHAR},#{item.useValue,jdbcType=DOUBLE},#{item.memo,jdbcType=VARCHAR}, #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.modifyDate,jdbcType=TIMESTAMP}, #{item.creator,jdbcType=VARCHAR},#{item.df,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM coupon WHERE id=#{id}
+    </delete>
+    <update id="update" parameterType="com.peiyu.mem.domian.entity.Coupon">
+        update coupon
+        <set >
+            <if test="vendorId != null" >
+                vendorId = #{vendorId,jdbcType=BIGINT},
+            </if>
+            <if test="actNo != null" >
+                actNo = #{actNo,jdbcType=VARCHAR},
+            </if>
+            <if test="actName != null" >
+                actName = #{actName,jdbcType=VARCHAR},
+            </if>
+            <if test="subgroupCode != null" >
+                subgroupCode = #{subgroupCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cpCode != null" >
+                cpCode = #{cpCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cpValue != null" >
+                cpValue = #{cpValue,jdbcType=DOUBLE},
+            </if>
+            <if test="startDate != null" >
+                startDate = #{startDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endDate != null" >
+                endDate = #{endDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="state != null" >
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="memNo != null" >
+                memNo = #{memNo,jdbcType=VARCHAR},
+            </if>
+            <if test="memCat != null" >
+                memCat = #{memCat,jdbcType=VARCHAR},
+            </if>
+            <if test="useValue != null" >
+                useValue = #{useValue,jdbcType=DOUBLE},
+            </if>
+            <if test="memo != null" >
+                memo = #{memo,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null" >
+                createDate = #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyDate != null" >
+                modifyDate = #{modifyDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="creator != null" >
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="df != null" >
+                df = #{df,jdbcType=INTEGER},
+            </if>
+            <if test="sendCouponDate!=null">
+                sendCouponDate=#{sendCouponDate}
+            </if>
+            <if test="usedCouponDate!=null">
+                usedCouponDate=#{usedCouponDate}
+            </if>
+            <if test="validCouponDate!=null">
+                validCouponDate=#{validCouponDate}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <!--批量更新优惠券-->
+    <update id="updateBatchCouponsState" parameterType="java.util.List">
+        <foreach collection="coupons" item="item" index="index" separator=";">
+            UPDATE coupon
+            <set>
+                state = #{item.state,jdbcType=INTEGER},
+                memNo = #{item.memNo,jdbcType=VARCHAR},
+                memCat = #{item.memCat,jdbcType=VARCHAR},
+                sendCouponDate = #{item.sendCouponDate,jdbcType=TIMESTAMP},
+                modifyDate = #{item.modifyDate,jdbcType=TIMESTAMP}
+            </set>
+            where id = #{item.id,jdbcType=BIGINT} AND state=0
+        </foreach>
+    </update>
+    <select id="get" parameterType="java.lang.Long" resultType="com.peiyu.mem.domian.entity.Coupon">
+      select * from coupon WHERE id=#{id};
+    </select>
+    <select id="getCouponsBySearch" parameterType="com.peiyu.mem.domian.entity.Coupon" resultType="com.peiyu.mem.domian.entity.Coupon">
+      select * from coupon WHERE df=0 AND vendorId = #{vendorId}
+      <include refid="whereCase"></include>
+    </select>
+    <select id="getCouponListByPage" parameterType="com.peiyu.mem.domian.entity.Coupon" resultType="com.peiyu.mem.domian.entity.Coupon">
+        select * from coupon WHERE df=0 AND vendorId = #{vendorId}
+        <include refid="whereCase"></include>
+        <if test="pageIndex != null and pageSize != null">
+            limit #{pageIndex} , #{pageSize}
+        </if>
+    </select>
+    <sql id="whereCase">
+        <if test="cpValue != null" >
+            and cpValue = #{cpValue}
+        </if>
+        <if test="memNo != null" >
+            and memNo = #{memNo}
+        </if>
+        <if test="state != null">
+            and state = #{state}
+        </if>
+        <if test="cpCode != null">
+            and cpCode = #{cpCode}
+        </if>
+        <if test="actNo != null">
+            and actNo = #{actNo}
+        </if>
+        <if test="subgroupCode != null">
+            and subgroupCode = #{subgroupCode}
+        </if>
+        <if test="startDate != null and startDate != ''" >
+            <![CDATA[
+                and startDate >= #{startDate}
+              ]]>
+        </if>
+        <if test="endDate != null and endDate != ''" >
+            <![CDATA[
+                and endDate <= #{endDate}
+              ]]>
+        </if>
+    </sql>
+</mapper>
